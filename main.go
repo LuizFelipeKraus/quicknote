@@ -19,7 +19,8 @@ func noteView(w http.ResponseWriter, r *http.Request) {
 }
 
 func noteList(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprint(w, "Visualizar Lista Anotações!")
+	w.Header().Set("Content-Type", "application/json ")
+	fmt.Fprint(w, "<h1>Visualizar Lista Anotações!</h1>")
 }
 
 func main() {
