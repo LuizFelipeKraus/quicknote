@@ -6,10 +6,9 @@ import (
 )
 
 func noteCreate(w http.ResponseWriter, r *http.Request) {
-	if r.Method != "POST" {
-		w.Header().Set("Allow", "POST")
-		w.WriteHeader(405)
-		fmt.Fprint(w, "Método não permitido!")
+	if r.Method != http.MethodPost {
+		w.Header().Set("Allow", http.MethodPost)
+		http.Error(w, "Método não permitido!", http.StatusMethodNotAllowed)
 		return
 	}
 	fmt.Fprint(w, "Criar Anotação!")
