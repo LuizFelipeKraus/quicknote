@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"html/template"
 	"net/http"
 )
 
@@ -33,8 +34,14 @@ func noteView(w http.ResponseWriter, r *http.Request) {
 }
 
 func noteList(w http.ResponseWriter, r *http.Request) {
-	//w.Header().Set("Content-type", "text/html")
-	fmt.Fprintf(w, "<h1> Lista de anotações e lembretes </h1>")
+	t, err := template.ParseFiles("views/templates/home.html")
+	if err != nil {
+		http.Error(w, "Aconteceu um erro ao executar!", http.StatusInternalServerError)
+		return
+	}
+
+	t.Execute(w, nil)
+
 }
 
 func main() {
