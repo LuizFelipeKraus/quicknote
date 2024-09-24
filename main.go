@@ -15,7 +15,15 @@ func noteCreate(w http.ResponseWriter, r *http.Request) {
 }
 
 func noteView(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprint(w, "Visualizar Anotação!")
+	fmt.Println(r.URL.Path)
+	fmt.Println(r.URL.RawQuery)
+
+	id := r.URL.Query().Get("id")
+	if id == "" {
+		http.Error(w, "Nota não encontrada!", http.StatusNotFound)
+		return
+	}
+	fmt.Fprint(w, "Visualizar Anotação!"+id)
 }
 
 func noteList(w http.ResponseWriter, r *http.Request) {
