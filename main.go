@@ -23,12 +23,18 @@ func noteView(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Nota não encontrada!", http.StatusNotFound)
 		return
 	}
-	fmt.Fprint(w, "Visualizar Anotação!"+id)
+	note := `
+		<div> 
+			<h3> Esta é a nota %s</h3>
+			<p> Este é o conteudo da anotação</p>
+		</div>
+	`
+	fmt.Fprintf(w, note, id)
 }
 
 func noteList(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json ")
-	fmt.Fprint(w, "<h1>Visualizar Lista Anotações!</h1>")
+	//w.Header().Set("Content-type", "text/html")
+	fmt.Fprintf(w, "<h1> Lista de anotações e lembretes </h1>")
 }
 
 func main() {
