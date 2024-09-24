@@ -6,12 +6,12 @@ import (
 )
 
 type TemplateDate struct {
-	Nome string
+	Nome  string
+	Idade int
 }
 
 func main() {
-	t, err := template.New("teste").Parse("<h1>Hello {{ . }}!</h1>")
-
+	t, err := template.ParseFiles("hello.html")
 	if err != nil {
 		panic(err)
 	}
