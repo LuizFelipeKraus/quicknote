@@ -12,7 +12,7 @@ type TemplateDate struct {
 }
 
 func main() {
-	t, err := template.ParseFiles("b.html", "a.html")
+	t, err := template.ParseFiles("layout1.html", "header.html", "footer.html")
 
 	fmt.Println(t.Name())
 
