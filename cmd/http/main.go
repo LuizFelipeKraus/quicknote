@@ -41,6 +41,10 @@ func noteView(w http.ResponseWriter, r *http.Request) {
 }
 
 func noteList(w http.ResponseWriter, r *http.Request) {
+	if r.URL.Path != "/" {
+		http.NotFound(w, r)
+		return
+	}
 	file := []string{
 		"views/templates/base.html",
 		"views/templates/pages/home.html",
@@ -73,6 +77,10 @@ func noteNew(w http.ResponseWriter, r *http.Request) {
 func main() {
 	fmt.Println("Servidor rodando na porta 5000!")
 	mux := http.NewServeMux()
+
+	staticHandler := http.FileServer(http.Dir("views/static"))
+
+	mux.Handle("/static/", http.StripPrefix("/static/", staticHandler))
 
 	mux.HandleFunc("/", noteList)
 	mux.HandleFunc("/note/view", noteView)
