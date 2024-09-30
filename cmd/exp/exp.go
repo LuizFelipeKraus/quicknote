@@ -3,13 +3,18 @@ package main
 import (
 	"fmt"
 	"os"
+
+	"github.com/joho/godotenv"
 )
 
 func main() {
-	port, ok := os.LookupEnv("SERVER_PORT")
-	if !ok {
-		port = "5000"
+	err := godotenv.Load()
+	if err != nil {
+		panic(err)
 	}
-	fmt.Println("Servidor está rodando na porta: ", port)
+
+	port := os.Getenv("PORT")
+	host := os.Getenv("HOST")
+	fmt.Printf("%s:%s", host, port)
 
 }
