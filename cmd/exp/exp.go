@@ -1,16 +1,31 @@
 package main
 
 import (
-	"flag"
+	"encoding/json"
 	"fmt"
+	"os"
 )
 
-func main() {
-	port := flag.String("port", "7000", "Server Port")
-	flag.Parse()
-	fmt.Println("Server is running on port", *port)
+type Config struct {
+	Server struct {
+		Port      int
+		Host      string
+		StaticDir string
+	}
+}
 
-	var port2 string
-	flag.StringVar(&port2, "port2", "6000", "Server Port")
-	fmt.Println("Server is running on port", port2)
+func main() {
+	file, err := os.Open("config.json")
+	if err != nil {
+		panic(err)
+	}
+
+	var config Config
+	err = json.NewDecoder(file).Decode(&config)
+	if err != nil {
+		panic(err)
+	}
+
+	fmt.Printf("Dir static %s \n %s%d", config.Server.StaticDir, config.Server.Host, config.Server.Port)
+
 }
