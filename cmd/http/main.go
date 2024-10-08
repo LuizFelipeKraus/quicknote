@@ -3,7 +3,9 @@ package main
 import (
 	"fmt"
 	"html/template"
+	"log/slog"
 	"net/http"
+	"os"
 )
 
 func noteCreate(w http.ResponseWriter, r *http.Request) {
@@ -27,6 +29,7 @@ func noteView(w http.ResponseWriter, r *http.Request) {
 	id := r.URL.Query().Get("id")
 	if id == "" {
 		http.Error(w, "Nota não encontrada!", http.StatusNotFound)
+		slog.Error(fmt.Sprintf("Aconteceu um erro ao executar!", http.StatusInternalServerError))
 		return
 	}
 
@@ -34,6 +37,7 @@ func noteView(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		fmt.Println(err)
 		http.Error(w, "Aconteceu um erro ao executar!", http.StatusInternalServerError)
+		slog.Error(fmt.Sprintf("Aconteceu um erro ao executar!", http.StatusInternalServerError))
 		return
 	}
 
@@ -53,6 +57,7 @@ func noteList(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		fmt.Println(err)
 		http.Error(w, "Aconteceu um erro ao executar!", http.StatusInternalServerError)
+		slog.Error(fmt.Sprintf("Aconteceu um erro ao executar! %d", http.StatusInternalServerError))
 		return
 	}
 
@@ -68,6 +73,7 @@ func noteNew(w http.ResponseWriter, r *http.Request) {
 	t, err := template.ParseFiles(file...)
 	if err != nil {
 		http.Error(w, "Aconteceu um erro ao executar!", http.StatusInternalServerError)
+		slog.Error(fmt.Sprintf("Aconteceu um erro ao executar! %d", http.StatusInternalServerError))
 		return
 	}
 
@@ -76,7 +82,10 @@ func noteNew(w http.ResponseWriter, r *http.Request) {
 
 func main() {
 	config := loadConfig()
-	fmt.Printf("Servidor rodando na porta %s", config.ServerPort)
+	logger := newLogger(os.Stderr, config.GetLevelLog())
+	slog.SetDefault(logger)
+
+	slog.Info(fmt.Sprintf("Servidor rodando na porta %s", config.ServerPort))
 	mux := http.NewServeMux()
 
 	staticHandler := http.FileServer(http.Dir("views/static"))
