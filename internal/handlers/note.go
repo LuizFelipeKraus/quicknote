@@ -3,94 +3,74 @@ package handlers
 import (
 	"errors"
 	"fmt"
+	"html/template"
 	"log/slog"
 	"net/http"
-	"text/template"
 
 	"github.com/LuizFelipeKraus/quicknotes/internal/apperror"
 )
 
-type noteHandler struct {
-}
+type noteHandler struct{}
 
-func NewNotehandler() *noteHandler {
+func NewNoteHandler() *noteHandler {
 	return &noteHandler{}
 }
 
-func (nh *noteHandler) NoteCreate(w http.ResponseWriter, r *http.Request) {
-	if r.Method != http.MethodPost {
-		w.Header().Set("Allow", http.MethodPost)
-		http.Error(w, "Método não permitido! %d", http.StatusMethodNotAllowed)
-		slog.Error(fmt.Sprintf("Aconteceu um erro ao executar! %d", http.StatusInternalServerError))
-		return
-	}
-	fmt.Fprint(w, "Criar Anotação!")
-}
-
-func (nh *noteHandler) NoteView(w http.ResponseWriter, r *http.Request) error {
-	fmt.Println(r.URL.Path)
-	fmt.Println(r.URL.RawQuery)
-
-	file := []string{
-		"views/templates/base.html",
-		"views/templates/pages/note-view.html",
-	}
-
-	id := r.URL.Query().Get("id")
-
-	if id == "0" {
-		return apperror.WithStatus(errors.New("Não existe esse id "), http.StatusNotFound)
-	}
-
-	if id == "" {
-
-		slog.Error(fmt.Sprintf("Aconteceu um erro ao executar! %d", http.StatusInternalServerError))
-		return apperror.WithStatus(errors.New("Anotação é obrigatória"), http.StatusBadRequest)
-	}
-
-	t, err := template.ParseFiles(file...)
-	if err != nil {
-		fmt.Println(err)
-		//http.Error(w, "Aconteceu um erro ao executar!", http.StatusInternalServerError)
-		slog.Error(fmt.Sprintf("Aconteceu um erro ao executar! %d", http.StatusInternalServerError))
-		return apperror.WithStatus(errors.New("Não exite template"), http.StatusNotFound)
-	}
-
-	return t.ExecuteTemplate(w, "base", id)
-}
-
-func (nh *noteHandler) NoteList(w http.ResponseWriter, r *http.Request) {
+func (nh *noteHandler) NoteList(w http.ResponseWriter, r *http.Request) error {
 	if r.URL.Path != "/" {
-		http.NotFound(w, r)
-		return
+		return ErrNotFound
 	}
-	file := []string{
+	files := []string{
 		"views/templates/base.html",
 		"views/templates/pages/home.html",
 	}
-	t, err := template.ParseFiles(file...)
+	t, err := template.ParseFiles(files...)
 	if err != nil {
-		fmt.Println(err)
-		http.Error(w, "Aconteceu um erro ao executar!", http.StatusInternalServerError)
-		slog.Error(fmt.Sprintf("Aconteceu um erro ao executar! %d", http.StatusInternalServerError))
-		return
+		return ErrInternal
 	}
-
-	t.ExecuteTemplate(w, "base", nil)
-
+	slog.Info("Executou o handler / ")
+	return t.ExecuteTemplate(w, "base", nil)
 }
 
-func (nh *noteHandler) NoteNew(w http.ResponseWriter, r *http.Request) {
-	file := []string{
+func (nh *noteHandler) NoteView(w http.ResponseWriter, r *http.Request) error {
+	id := r.URL.Query().Get("id")
+	if id == "" {
+		return apperror.WithStatus(errors.New("anotação é obrigatória"), http.StatusBadRequest)
+	}
+	if id == "0" {
+		return apperror.WithStatus(errors.New("anotação 0 não foi encontrada"), http.StatusNotFound)
+	}
+	files := []string{
+		"views/templates/base.html",
+		"views/templates/pages/note-view.html",
+	}
+	t, err := template.ParseFiles(files...)
+	if err != nil {
+		return ErrInternal
+	}
+	return t.ExecuteTemplate(w, "base", id)
+}
+
+func (nh *noteHandler) NoteNew(w http.ResponseWriter, r *http.Request) error {
+	files := []string{
 		"views/templates/base.html",
 		"views/templates/pages/note-new.html",
 	}
-	t, err := template.ParseFiles(file...)
+	t, err := template.ParseFiles(files...)
 	if err != nil {
-		http.Error(w, "Aconteceu um erro ao executar!", http.StatusInternalServerError)
-		slog.Error(fmt.Sprintf("Aconteceu um erro ao executar! %d", http.StatusInternalServerError))
-		return
+		return ErrInternal
 	}
+	return t.ExecuteTemplate(w, "base", nil)
+}
 
-	t.ExecuteTemplate(w, "base", nil)
+func (nh *noteHandler) NoteCreate(w http.ResponseWriter, r *http.Request) error {
+	if r.Method != http.MethodPost {
+
+		w.Header().Set("Allow", http.MethodPost)
+
+		//rejeitar a requisição
+		return apperror.WithStatus(errors.New("operação não permitida"), http.StatusMethodNotAllowed)
+	}
+	fmt.Fprint(w, "Criando uma nova nota...")
+	return nil
 }

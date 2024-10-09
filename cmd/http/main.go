@@ -21,12 +21,12 @@ func main() {
 
 	mux.Handle("/static/", http.StripPrefix("/static/", staticHandler))
 
-	notehandler := handlers.NewNotehandler()
+	noteHandler := handlers.NewNoteHandler()
 
-	mux.HandleFunc("/", notehandler.NoteList)
-	mux.Handle("/note/view", handlers.HandlerWithError(notehandler.NoteView))
-	mux.HandleFunc("/note/new", notehandler.NoteNew)
-	mux.HandleFunc("/note/create", notehandler.NoteCreate)
+	mux.Handle("/", handlers.HandlerWithError(noteHandler.NoteList))
+	mux.Handle("/note/view", handlers.HandlerWithError(noteHandler.NoteView))
+	mux.Handle("/note/new", handlers.HandlerWithError(noteHandler.NoteNew))
+	mux.Handle("/note/create", handlers.HandlerWithError(noteHandler.NoteCreate))
 
 	if err := http.ListenAndServe(fmt.Sprintf(":%s", config.ServerPort), mux); err != nil {
 		panic(err)

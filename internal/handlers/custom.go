@@ -8,6 +8,9 @@ import (
 	"github.com/LuizFelipeKraus/quicknotes/internal/apperror"
 )
 
+var ErrNotFound = apperror.WithStatus(errors.New("página não encontrada"), http.StatusNotFound)
+var ErrInternal = apperror.WithStatus(errors.New("aconteceu um erro ao executar essa operação"), http.StatusInternalServerError)
+
 type HandlerWithError func(w http.ResponseWriter, r *http.Request) error
 
 func (f HandlerWithError) ServeHTTP(w http.ResponseWriter, r *http.Request) {
@@ -22,8 +25,10 @@ func (f HandlerWithError) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 				t, err := template.ParseFiles(file...)
 				if err != nil {
 					http.Error(w, err.Error(), statusErr.StatusCode())
+					return
 				}
 				t.ExecuteTemplate(w, "base", statusErr.StatusCode())
+				return
 
 			}
 			http.Error(w, err.Error(), statusErr.StatusCode())
