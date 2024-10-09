@@ -24,9 +24,11 @@ func main() {
 	notehandler := handlers.NewNotehandler()
 
 	mux.HandleFunc("/", notehandler.NoteList)
-	mux.HandleFunc("/note/view", notehandler.NoteView)
+	mux.Handle("/note/view", handlers.HandlerWithError(notehandler.NoteView))
 	mux.HandleFunc("/note/new", notehandler.NoteNew)
 	mux.HandleFunc("/note/create", notehandler.NoteCreate)
 
-	http.ListenAndServe(fmt.Sprintf(":%s", config.ServerPort), mux)
+	if err := http.ListenAndServe(fmt.Sprintf(":%s", config.ServerPort), mux); err != nil {
+		panic(err)
+	}
 }
