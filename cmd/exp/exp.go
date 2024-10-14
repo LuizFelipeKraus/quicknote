@@ -21,7 +21,8 @@ func main() {
 	defer conn.Close(context.Background())
 	createTable()
 	//insertPost()
-	insertPostWithReturn()
+	//insertPostWithReturn()
+	selectById()
 }
 
 func createTable() {
@@ -73,4 +74,16 @@ func insertPostWithReturn() {
 	}
 
 	fmt.Println("post criado com sucesso id = ", id)
+}
+
+func selectById() {
+	var title, content, author string
+	id := 2
+	query := "SELECT title, content, author FROM posts WHERE id = $1;"
+	row := conn.QueryRow(context.Background(), query, id)
+	if err := row.Scan(&title, &content, &author); err != nil {
+		panic(err)
+	}
+
+	fmt.Printf("POST: title = %s, content = %s, author = %s \n", title, content, author)
 }
