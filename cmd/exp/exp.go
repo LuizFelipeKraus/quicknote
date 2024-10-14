@@ -20,7 +20,7 @@ func main() {
 	fmt.Println("Conexão bem sucedida")
 	defer conn.Close(context.Background())
 	createTable()
-
+	insertPost()
 }
 
 func createTable() {
@@ -38,4 +38,20 @@ func createTable() {
 	}
 
 	fmt.Println("Table posts criada")
+}
+
+func insertPost() {
+	title := "POST 1"
+	content := "Conteudo do post 1"
+	author := "Luiz"
+
+	query := `
+		INSERT INTO posts(title, content, author) VALUES ($1, $2, $3);
+	`
+
+	_, err := conn.Exec(context.Background(), query, title, content, author)
+	if err != nil {
+		panic(err)
+	}
+	fmt.Println("post criado com sucesso")
 }
