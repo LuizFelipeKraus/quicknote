@@ -1,18 +1,30 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"log/slog"
 	"net/http"
 	"os"
 
 	"github.com/LuizFelipeKraus/quicknotes/internal/handlers"
+	"github.com/jackc/pgx/v5/pgxpool"
 )
 
 func main() {
 	config := loadConfig()
 	logger := newLogger(os.Stderr, config.GetLevelLog())
 	slog.SetDefault(logger)
+	url := "postgres://postgres:secret@localhost:5432/postgres"
+
+	dbpool, err := pgxpool.New(context.Background(), url)
+	if err != nil {
+		slog.Error(err.Error())
+		os.Exit(1)
+	}
+	slog.Info("Conexão com o banco aconteceu com sucesso")
+
+	defer dbpool.Close()
 
 	slog.Info(fmt.Sprintf("Servidor rodando na porta %s", config.ServerPort))
 	mux := http.NewServeMux()
